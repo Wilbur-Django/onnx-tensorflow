@@ -73,10 +73,11 @@ class Pad(BackendHandler):
       constant_values = tensor_dict[node.inputs[2]] if len(
           node.inputs) == 3 else 0
 
-    cond = tf.cond(check_positive(paddings),
-                   lambda: process_pos_pads(x, paddings, constant_values),
-                   lambda: process_neg_pads(x, paddings, constant_values))
-    return cond
+    # cond = tf.cond(check_positive(paddings),
+    #                lambda: process_pos_pads(x, paddings, constant_values),
+    #                lambda: process_neg_pads(x, paddings, constant_values))
+    # return cond
+    return process_pos_pads(x, paddings, constant_values)
 
   @classmethod
   def version_1(cls, node, **kwargs):

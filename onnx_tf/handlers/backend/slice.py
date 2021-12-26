@@ -14,48 +14,59 @@ class Slice(BackendHandler):
     tensor_dict = kwargs["tensor_dict"]
     x = tensor_dict[node.inputs[0]]
 
-    # Shape output as int64 since the spec implicitly allows int64
-    full_sizes = tf.shape(x, out_type=tf.int64)
+    # # Shape output as int64 since the spec implicitly allows int64
+    # full_sizes = tf.shape(x, out_type=tf.int64)
 
-    starts = node.attrs.get("starts")
+    # starts = node.attrs.get("starts")
     ends = node.attrs.get("ends")
-    slice_len = len(starts)
-    axes = node.attrs.get("axes", list(range(slice_len)))
+    # slice_len = len(starts)
+    # axes = node.attrs.get("axes", list(range(slice_len)))
 
-    updated_full_sizes = [0] * len(x.get_shape())
-    updated_full_begin = [0] * len(x.get_shape())
-    updated_starts = [0] * slice_len
-    updated_ends = [0] * slice_len
+    # updated_full_sizes = [0] * len(x.get_shape())
+    # updated_full_begin = [0] * len(x.get_shape())
+    # updated_starts = [0] * slice_len
+    # updated_ends = [0] * slice_len
 
-    for axis in range(x.shape.rank):
-      if axis not in axes:
-        # Update the sizes for axes that are not in the axes attribute
-        # No need to change the default of 0 in begins
-        updated_full_sizes[axis] = full_sizes[axis]
-      else:
-        # Update the begins and sizes for each axis in the axes attribute
-        for i in range(slice_len):
-          if axis == axes[i]:
-            updated_starts[i] = full_sizes[axis] + starts[i] if starts[
-                i] < 0 else starts[i]
-            updated_ends[
-                i] = full_sizes[axis] + ends[i] if ends[i] < 0 else ends[i]
-            if full_sizes[axis] is not None:
-              updated_ends[i] = tf.reduce_min(
-                  [full_sizes[axis], updated_ends[i]])
-              updated_starts[i] = tf.reduce_min(
-                  [full_sizes[axis], updated_starts[i]])
+    # for axis in range(x.shape.rank):
+    #   if axis not in axes:
+    #     # Update the sizes for axes that are not in the axes attribute
+    #     # No need to change the default of 0 in begins
+    #     updated_full_sizes[axis] = full_sizes[axis]
+    #   else:
+    #     # Update the begins and sizes for each axis in the axes attribute
+    #     for i in range(slice_len):
+    #       if axis == axes[i]:
+    #         updated_starts[i] = full_sizes[axis] + starts[i] if starts[
+    #             i] < 0 else starts[i]
+    #         updated_ends[
+    #             i] = full_sizes[axis] + ends[i] if ends[i] < 0 else ends[i]
+    #         if full_sizes[axis] is not None:
+    #           updated_ends[i] = tf.reduce_min(
+    #               [full_sizes[axis], updated_ends[i]])
+    #           updated_starts[i] = tf.reduce_min(
+    #               [full_sizes[axis], updated_starts[i]])
 
-            updated_full_begin[axis] = updated_starts[i]
-            updated_full_sizes[axis] = updated_ends[i] - updated_starts[i]
+    #         updated_full_begin[axis] = updated_starts[i]
+    #         updated_full_sizes[axis] = updated_ends[i] - updated_starts[i]
+
+    # return [
+    #     cls.make_tensor_from_onnx_node(node,
+    #                                    tf_func=tf.slice,
+    #                                    inputs=[
+    #                                        tensor_dict[node.inputs[0]],
+    #                                        updated_full_begin,
+    #                                        updated_full_sizes
+    #                                    ],
+    #                                    **kwargs)
+    # ]
 
     return [
         cls.make_tensor_from_onnx_node(node,
                                        tf_func=tf.slice,
                                        inputs=[
                                            tensor_dict[node.inputs[0]],
-                                           updated_full_begin,
-                                           updated_full_sizes
+                                           [0] * len(ends),
+                                           ends
                                        ],
                                        **kwargs)
     ]
